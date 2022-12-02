@@ -1,16 +1,22 @@
 class Day02(filename: String) : Advent, InputFileReader {
 
-    val lines = loadInput(filename)
+    private val lines = loadInput(filename)
 
     enum class Shape {
         ROCK {
             override fun score() = 1
+            override fun losesTo() = PAPER
+            override fun beats() = SCISSORS
         },
         PAPER {
             override fun score() = 2
+            override fun losesTo() = SCISSORS
+            override fun beats() = ROCK
         },
         SCISSORS {
             override fun score() = 3
+            override fun losesTo() = ROCK
+            override fun beats() = PAPER
         };
 
         companion object Factory {
@@ -30,10 +36,12 @@ class Day02(filename: String) : Advent, InputFileReader {
         }
 
         abstract fun score(): Int
+        abstract fun losesTo(): Shape
+        abstract fun beats(): Shape
     }
 
-    class Round(val elfMove: Shape, val ownMove: Shape) {
-        fun winnerScore(): Int =
+    class Round(private val elfMove: Shape, private val ownMove: Shape) {
+        private fun winnerScore(): Int =
             if (elfMove == ownMove) 3
             else {
                 when (ownMove) {
@@ -46,9 +54,7 @@ class Day02(filename: String) : Advent, InputFileReader {
         fun ownScore() = winnerScore() + ownMove.score()
     }
 
-    val rounds = parseInputIntoRounds(loadInput(filename))
-
-    fun parseInputIntoRounds(lines: List<String>): List<Round> {
+    private fun parseInputAsMoves(): List<Round> {
         return lines.map {
             val moves = it.split(" ")
             val elfMove = Shape.fromElfMove(moves[0])
@@ -57,36 +63,26 @@ class Day02(filename: String) : Advent, InputFileReader {
         }
     }
 
-    fun losingMove(otherMove: Shape) = when (otherMove) {
-        Shape.ROCK -> Shape.SCISSORS
-        Shape.PAPER -> Shape.ROCK
-        Shape.SCISSORS -> Shape.PAPER
+    private fun parseInputAsInstructions() = lines.map {
+        val moves = it.split(" ")
+        val elfMove = Shape.fromElfMove(moves[0])
+        val ownMove = decideMove(moves[1], elfMove)
+        Round(elfMove, ownMove)
     }
 
-    fun winningMove(otherMove: Shape) = when (otherMove) {
-        Shape.ROCK -> Shape.PAPER
-        Shape.PAPER -> Shape.SCISSORS
-        Shape.SCISSORS -> Shape.ROCK
-    }
-
-    fun decideMove(moveInstruction: String, elfMove: Shape): Shape = when (moveInstruction) {
-        "X" -> losingMove(elfMove)
+    private fun decideMove(moveInstruction: String, elfMove: Shape): Shape = when (moveInstruction) {
+        "X" -> elfMove.beats()
         "Y" -> elfMove
-        "Z" -> winningMove(elfMove)
+        "Z" -> elfMove.losesTo()
         else -> throw Exception("Unexpected move instruction: $moveInstruction")
     }
 
     override fun part1(): String {
-        return rounds.map { it.ownScore() }.sum().toString()
+        return parseInputAsMoves().sumOf { it.ownScore() }.toString()
     }
 
     override fun part2(): String {
-        return lines.map {
-            val moves = it.split(" ")
-            val elfMove = Shape.fromElfMove(moves[0])
-            val ownMove = decideMove(moves[1], elfMove)
-            Round(elfMove, ownMove)
-        }.map { it.ownScore() }.sum().toString()
+        return parseInputAsInstructions().sumOf { it.ownScore() }.toString()
     }
 }
 
