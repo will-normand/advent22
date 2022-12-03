@@ -27,7 +27,15 @@ class Day03(filename: String) : Advent, InputFileReader {
     }
 
     override fun part2(): String {
-        return TODO()
+        return lines.chunked(3).sumOf {
+            it.map { chars ->
+                chars.toSet()
+            }.reduce { acc, contents ->
+                acc.intersect(contents)
+            }.sumOf { char ->
+                priority(char)
+            }
+        }.toString()
     }
 
     companion object {

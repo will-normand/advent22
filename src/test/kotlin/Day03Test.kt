@@ -37,5 +37,6 @@ class Day03Test {
 
     @Test
     fun part2() {
+        assertEquals("70", day03.part2())
     }
 }
