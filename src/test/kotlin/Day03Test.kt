@@ -2,8 +2,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
-
-
 class Day03Test {
     private val day03 = Day03("src/test/resources/input03")
 
