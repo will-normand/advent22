@@ -26,6 +26,16 @@ class Day11Test {
             val double = Day11.Monkey.parseOperation("old + old")
             assertEquals(64, double(32))
         }
+
+        @Test
+        fun parseDivisor() {
+            assertEquals(13, Day11.Monkey.parseDivisor("  Test: divisible by 13"))
+        }
+
+        @Test
+        fun parseStartingList() {
+            assertEquals(listOf(65, 77), Day11.Monkey.parseStartingList("  Starting items: 65, 77"))
+        }
     }
 
     @Test
