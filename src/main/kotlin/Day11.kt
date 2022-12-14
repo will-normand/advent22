@@ -1,13 +1,19 @@
 class Day11(filename: String) : Advent, InputFileReader {
 
 
-    class Monkey(items: List<Int>, operation: Operation, test: Int, trueDest: Int, falseDest: Int) {
+    data class Monkey(
+        val items: List<Int>,
+        val operation: Operation,
+        val test: Int,
+        val trueDest: Int,
+        val falseDest: Int
+    ) {
         companion object {
             val add: Int.(Int) -> Int = { b -> plus(b) }
             val multiply: Int.(Int) -> Int = { b -> times(b) }
 
             fun parseOperation(input: String): Operation {
-                val (a, op, b) = input.split(" ")
+                val (a, op, b) = input.trim().removePrefix("Operation: new = ").split(" ")
                 val opFun = when (op) {
                     "*" -> multiply
                     "+" -> add
@@ -47,8 +53,15 @@ class Day11(filename: String) : Advent, InputFileReader {
     }
 
     private val lines = loadInput(filename)
+
+    fun parseMonkeys(): List<Monkey> {
+        val monkeyLines: List<List<String>> = lines.chunked(7)
+        return monkeyLines.map { Monkey.parseMonkey(it.take(6)) }
+    }
+
     override fun part1(): String {
-        return TODO()
+        println(parseMonkeys())
+        return parseMonkeys().toString()
     }
 
     override fun part2(): String {
