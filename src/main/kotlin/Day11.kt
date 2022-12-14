@@ -2,12 +2,14 @@ class Day11(filename: String) : Advent, InputFileReader {
 
 
     data class Monkey(
-        val items: List<Int>,
+        val items: MutableList<Int>,
         val operation: Operation,
         val test: Int,
         val trueDest: Int,
         val falseDest: Int
     ) {
+        var inspections = 0
+
         companion object {
             val add: Int.(Int) -> Int = { b -> plus(b) }
             val multiply: Int.(Int) -> Int = { b -> times(b) }
@@ -30,10 +32,10 @@ class Day11(filename: String) : Advent, InputFileReader {
                 input.trim().removePrefix(prefix).toInt()
 
             fun parseDivisor(input: String): Int = parseIntInput("Test: divisible by ", input)
-            fun parseStartingList(input: String): List<Int> =
+            fun parseStartingList(input: String): MutableList<Int> =
                 input.trim().removePrefix("Starting items: ").split(',').map {
                     it.trim().toInt()
-                }
+                }.toMutableList()
 
             fun parseMonkeyNumber(input: String): Int =
                 input.removePrefix("Monkey ").removeSuffix(":").toInt()
@@ -50,6 +52,18 @@ class Day11(filename: String) : Advent, InputFileReader {
                     parseFalse(monkeyDef[5])
                 )
         }
+
+        fun inspect(): Int {
+            inspections++
+            val item = items.removeFirst()
+            val worry = operation(item)
+            val newWorry = worry / 3
+            return newWorry
+        }
+
+        fun catch(item: Int) {
+            items.add(items.size, item)
+        }
     }
 
     private val lines = loadInput(filename)
@@ -59,9 +73,31 @@ class Day11(filename: String) : Advent, InputFileReader {
         return monkeyLines.map { Monkey.parseMonkey(it.take(6)) }
     }
 
+    class Game(val monkeys: List<Monkey>) {
+        fun turn(monkey: Monkey) {
+            while (monkey.items.isNotEmpty()) {
+                val newWorry = monkey.inspect()
+                if (newWorry % monkey.test == 0) {
+                    monkeys[monkey.trueDest].catch(newWorry)
+                } else {
+                    monkeys[monkey.falseDest].catch(newWorry)
+                }
+            }
+        }
+
+        fun round() {
+            monkeys.forEach { turn(it) }
+        }
+
+        fun printState() {
+            monkeys.forEachIndexed { index, monkey -> println("Monkey $index: ${monkey.items}") }
+        }
+    }
+
     override fun part1(): String {
-        println(parseMonkeys())
-        return parseMonkeys().toString()
+        val game = Game(parseMonkeys())
+        repeat(20) { game.round() }
+        return game.monkeys.map { it.inspections }.sorted().takeLast(2).reduce{ a, b -> a * b }.toString()
     }
 
     override fun part2(): String {

@@ -60,12 +60,33 @@ class Day11Test {
     }
 
     @Test
-    fun parseMonkeys() {
+    fun `parse the monkeys`() {
         val result = day11.parseMonkeys()
         assertEquals(4, result.size)
     }
 
     @Test
+    fun `do the first round`() {
+        val game = Day11.Game(day11.parseMonkeys())
+        game.printState()
+        game.round()
+        assertEquals(mutableListOf(20, 23, 27, 26), game.monkeys[0].items)
+        assertEquals(mutableListOf(2080, 25, 167, 207, 401, 1046), game.monkeys[1].items)
+    }
+
+    @Test
+    fun `do 20 rounds`() {
+        val game = Day11.Game(day11.parseMonkeys())
+        repeat(20) { game.round() }
+        assertEquals(mutableListOf(10, 12, 14, 26, 34), game.monkeys[0].items)
+        assertEquals(mutableListOf(245, 93, 53, 199, 115), game.monkeys[1].items)
+        assertTrue(game.monkeys[2].items.isEmpty())
+        assertTrue(game.monkeys[3].items.isEmpty())
+    }
+
+    @Test
     fun part1() {
+        val result = day11.part1()
+        assertEquals("10605", result)
     }
 }
